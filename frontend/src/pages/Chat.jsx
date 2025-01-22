@@ -8,10 +8,13 @@ const socket = io("http://localhost:5000");
 
 function Chat() {
   const [chat, setChat] = useState([]);
+
   const location = useLocation();
-  const username = location.state?.username || "Anonymous";
+  const username = location.state?.username ;
+  console.log(username);
 
   useEffect(() => {
+    
     socket.on("receive_message", (data) => {
       setChat((prevChat) => [...prevChat, data]);
     });
@@ -28,6 +31,8 @@ function Chat() {
       setChat((prevChat) => [...prevChat, data]);
     }
   };
+
+  console.log("this is chat" , chat)
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
