@@ -15,16 +15,19 @@ const RegisterPage = () => {
 
     try{
       const response = await axios.post("http://localhost:5000/api/users/register",FormData);
+      console.log("this is response status -> ",response.status)
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token)
         console.log("registration successful");
 
         const socket = io("http://localhost:5000");
 
-        const userId = response.data.userId;
+        const userId = response.data.newUser._id;
+        // console.log("this is response data id ",response.data.newUser._id)
+
         console.log("this is userId -> ",userId)
         socket.emit("register", userId);
-        navigate("/");
+        navigate("/login");
       }
 
     }

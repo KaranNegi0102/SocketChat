@@ -39,12 +39,13 @@ io.on("connection", (socket) => {
   });
 
   // Send a request to another user
-  socket.on("sendRequest", ({ fromUserId, toUserId }) => {
-    const toSocketId = users[toUserId]; // Get the recipient's socket ID
-    if (toSocketId) {
-      // Forward the request to the recipient
-      io.to(toSocketId).emit("requestReceived", { fromUserId });
-      console.log(`Request sent from ${fromUserId} to ${toUserId}`);
+  socket.on("sendFriendRequest", async ({receiverId, senderId}) => {
+    const receiver = await UserSchema.findById(receiverId);  // Get the recipient's socket ID
+    if (receiver) {
+      
+      io.to(receiver.socketId).emit("newFriendRequest", { senderId: socket.id });
+
+      console.log(`Request sent from ${senderId} to ${receiverId}`);
     } else {
       console.log(`User ${toUserId} is not connected`);
       socket.emit("requestError", `User ${toUserId} is not connected.`);

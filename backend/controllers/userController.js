@@ -19,7 +19,7 @@ const registerController = async (req, res) => {
     const newUser = new UserSchema({ name, email, password: hashedPassword, socketId:""});
     await newUser.save();
 
-    res.status(201).json({ message: 'User registered successfully', newUser });
+    res.status(200).json({ message: 'User registered successfully', newUser });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: 'Server error', error: error.message });

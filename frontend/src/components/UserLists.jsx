@@ -1,11 +1,10 @@
-import React from "react";
-
-const UserList = ({ users, onSelectUser }) => {
+const UserList = ({ users, onSendRequest }) => {
   return (
     <ul>
-      {users.map((user,index) => (
-        <li key={index} onClick={() => onSelectUser(user)}>
-          {user.name}   
+      {users.map((user) => (
+        <li key={user._id}>
+          {user.name}{" "}
+          <button onClick={() => onSendRequest(user._id)}>Send Request</button>
         </li>
       ))}
     </ul>
