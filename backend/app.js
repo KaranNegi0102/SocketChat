@@ -14,7 +14,9 @@ app.get("/", (req, res) => {
 });
 
 
-app.use("/api/user", require("./routes/userRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/messages", require("./routes/messageRoutes"));
+app.use("/api/friend-requests", require("./routes/friendRequestRoute"));
 
 
 module.exports = app;

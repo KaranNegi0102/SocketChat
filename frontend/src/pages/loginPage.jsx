@@ -16,10 +16,9 @@ function Login() {
     const response = await axios.post("http://localhost:5000/api/user/login",userData);
 
     if (response.status === 200) {
-      const user = response.data;
-      navigate("/", { state: { user } });
-      console.log(user);
-      
+      const dataUser = response.data;
+      const username = dataUser.user.name;
+      navigate("/", { state: { username} }); 
     }
   }
 

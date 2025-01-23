@@ -1,15 +1,79 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import io from "socket.io-client";
+import UserList from "../components/UserLists";
+import ChatWindow from "../components/ChatWindow";
+
+const socket = io("http://localhost:5000"); // Connect to the server
 
 const Chat = () => {
   const location = useLocation();
   const username = location.state?.username || "Guest"; // Get username from state
+  const navigate = useNavigate();
+
+  const [users, setUsers] = useState([]); // List of all users
+  const [selectedUser, setSelectedUser] = useState(null); // Selected user for chat
+  const [messages, setMessages] = useState([]); // Chat messages
+
+  // Register the user when the component mounts
+  useEffect(() => {
+    if (username) {
+      socket.emit("register", username);
+    }
+  }, [username]);
+
+  // Fetch all users from the server
+  useEffect(() => {
+    socket.on("userList", (userList) => {
+      setUsers(userList);
+    });
+
+    // Listen for incoming messages
+    socket.on("receiveMessage", (message) => {
+      setMessages((prev) => [...prev, message]);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Send a message to the selected user
+  const sendMessage = (text) => {
+    if (selectedUser) {
+      const message = {
+        from: username,
+        to: selectedUser,
+        text,
+      };
+      socket.emit("sendMessage", message);
+      setMessages((prev) => [...prev, message]);
+    }
+  };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Chat Page</h1>
-      <p className="text-lg">Welcome to the chat, {username}!</p>
-      {/* Add chat functionality here */}
+    <div className="flex h-screen bg-gray-100">
+      {/* Left Side Panel - User List */}
+      <div className="w-1/4 bg-white p-4 border-r border-gray-200">
+        <h2 className="text-xl font-bold mb-4">Users</h2>
+        <UserList users={users} onSelectUser={setSelectedUser} />
+      </div>
+
+      {/* Right Side Panel - Chat Window */}
+      <div className="flex-1 p-4">
+        {selectedUser ? (
+          <ChatWindow
+            selectedUser={selectedUser}
+            messages={messages.filter(
+              (msg) => msg.from === selectedUser || msg.to === selectedUser
+            )}
+            onSendMessage={sendMessage}
+          />
+        ) : (
+          <p className="text-gray-500">Select a user to start chatting</p>
+        )}
+      </div>
     </div>
   );
 };
