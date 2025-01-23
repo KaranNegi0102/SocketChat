@@ -2,7 +2,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const app = require("./app"); // Assuming you have an Express app
 const PORT = 5000;
-
+const UserSchema = require("./model/UserModel");
 const server = http.createServer(app);
 
 // Store connected users and their socket IDs
@@ -21,14 +21,20 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // Register a user with their userId
-  socket.on("register", (userId) => {
-    if (users[userId]) {
-      console.log(`User ${userId} is already registered.`);
-      socket.emit("registrationError", "User ID is already in use.");
-    } else {
-      users[userId] = socket.id; // Map userId to socket.id
-      console.log(`User ${userId} registered with socket ID ${socket.id}`);
-      socket.emit("registrationSuccess", "Registration successful!");
+  socket.on("register", async (userId) => {
+    try {
+      const user = await UserSchema.findByIdAndUpdate(
+        userId,
+        { socketId: socket.id },
+        { new: true } // Return updated user
+      );
+      if (user) {
+        console.log(`Socket ID updated for user -> ${userId}, Socket ID: ${socket.id}`);
+      } else {
+        console.log(`User not found for ID -> ${userId}`);
+      }
+    } catch (err) {
+      console.log("Error updating user ->", err);
     }
   });
 
@@ -61,14 +67,6 @@ io.on("connection", (socket) => {
   // Handle user disconnection
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
-    // Remove the user from the users object
-    for (const [userId, socketId] of Object.entries(users)) {
-      if (socketId === socket.id) {
-        delete users[userId];
-        console.log(`User ${userId} removed`);
-        break;
-      }
-    }
   });
 });
 

@@ -3,54 +3,78 @@ import { useLocation, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 import UserList from "../components/UserLists";
 import ChatWindow from "../components/ChatWindow";
-
+import axios from "axios";
 const socket = io("http://localhost:5000"); // Connect to the server
 
 const Chat = () => {
-  const location = useLocation();
-  const username = location.state?.username || "Guest"; // Get username from state
-  const navigate = useNavigate();
+  
 
   const [users, setUsers] = useState([]); // List of all users
+
+  useEffect(()=>{
+    const fetchUserData = async () => {
+      try{
+        const token = localStorage.getItem('token')
+        const response = await axios.get("http://localhost:5000/api/users/get-users",{
+          headers: {
+            'Authorization': `${token}`
+          }
+        });
+        if(response.status===200){
+          console.log("this is response -> ",response.data)
+          setUsers(response.data)
+        }
+        }
+        catch(err){
+          console.log("this is the error -> ",err);
+        }
+      }
+      fetchUserData()
+    },[])
+
+    console.log("this is users -> ",users)
+
+
+
   const [selectedUser, setSelectedUser] = useState(null); // Selected user for chat
   const [messages, setMessages] = useState([]); // Chat messages
 
   // Register the user when the component mounts
-  useEffect(() => {
-    if (username) {
-      socket.emit("register", username);
-    }
-  }, [username]);
+  // useEffect(() => {
+  //   if (username) {
+  //     socket.emit("register", username);
+  //   }
+  // }, [username]);
 
-  // Fetch all users from the server
-  useEffect(() => {
-    socket.on("userList", (userList) => {
-      setUsers(userList);
-    });
+  // // Fetch all users from the server
+  // useEffect(() => {
+  //   socket.on("userList", (userList) => {
+  //     setUsers(userList);
+  //   });
 
-    // Listen for incoming messages
-    socket.on("receiveMessage", (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
+  //   // Listen for incoming messages
+  //   socket.on("receiveMessage", (message) => {
+  //     setMessages((prev) => [...prev, message]);
+  //   });
 
-    // Cleanup on unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  //   // Cleanup on unmount
+  //   return () => {
+  //     socket.disconnect();
+  //   };
+  // }, []);
 
-  // Send a message to the selected user
-  const sendMessage = (text) => {
-    if (selectedUser) {
-      const message = {
-        from: username,
-        to: selectedUser,
-        text,
-      };
-      socket.emit("sendMessage", message);
-      setMessages((prev) => [...prev, message]);
-    }
-  };
+  // // Send a message to the selected user
+  // const sendMessage = (text) => {
+  //   if (selectedUser) {
+  //     const message = {
+  //       from: username,
+  //       to: selectedUser,
+  //       text,
+  //     };
+  //     socket.emit("sendMessage", message);
+  //     setMessages((prev) => [...prev, message]);
+  //   }
+  // };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -68,7 +92,7 @@ const Chat = () => {
             messages={messages.filter(
               (msg) => msg.from === selectedUser || msg.to === selectedUser
             )}
-            onSendMessage={sendMessage}
+            // onSendMessage={sendMessage}
           />
         ) : (
           <p className="text-gray-500">Select a user to start chatting</p>

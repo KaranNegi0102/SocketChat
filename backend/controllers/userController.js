@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const registerController = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { name, email, password } = req.body;
 
   try {
     // Check if user already exists
@@ -16,7 +16,7 @@ const registerController = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create new user
-    const newUser = new UserSchema({ username, email, password: hashedPassword });
+    const newUser = new UserSchema({ name, email, password: hashedPassword, socketId:""});
     await newUser.save();
 
     res.status(201).json({ message: 'User registered successfully', newUser });
@@ -53,7 +53,8 @@ const loginController = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await UserSchema.find({ _id: { $ne: req.user.id } }).select('-password');
+    const users = await UserSchema.find({}).select('-password');
+    console.log("this is users->",users);
     res.status(200).json(users);
   } catch (error) {
     console.log(error);
