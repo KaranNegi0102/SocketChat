@@ -20,7 +20,10 @@ function Login() {
       const response = await axios.post("http://localhost:5000/api/users/login",userData);
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token)
-        navigate("/"); 
+        localStorage.setItem('userId', response.data.user._id)
+        // console.log(localStorage.getItem("userId"));
+        console.log(response.data.user.name)
+        navigate("/",{state:{name:response.data.user.name}}); 
       }
     }
     catch(err){

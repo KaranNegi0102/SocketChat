@@ -53,16 +53,8 @@ io.on("connection", (socket) => {
   });
 
   // Handle request responses (accept/reject)
-  socket.on("respondToRequest", ({ fromUserId, toUserId, response }) => {
-    const fromSocketId = users[fromUserId]; // Get the requester's socket ID
-    if (fromSocketId) {
-      // Forward the response to the requester
-      io.to(fromSocketId).emit("requestResponse", { toUserId, response });
-      console.log(`User ${toUserId} responded to ${fromUserId} with ${response}`);
-    } else {
-      console.log(`User ${fromUserId} is not connected`);
-      socket.emit("responseError", `User ${fromUserId} is not connected.`);
-    }
+  socket.on("respondToRequest", ({ senderId ,receiverId, response }) => {
+    
   });
 
   // Handle user disconnection

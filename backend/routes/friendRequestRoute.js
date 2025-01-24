@@ -13,6 +13,6 @@ router.post('/accept-request', authMiddleware, friendRequestController.acceptFri
 router.post('/reject-request', authMiddleware, friendRequestController.rejectFriendRequest);
 
 // Get pending friend requests
-router.get('/requests', authMiddleware, friendRequestController.getPendingRequests);
+router.get('/pending-requests', authMiddleware, friendRequestController.getPendingRequests);
 
 module.exports = router;

@@ -52,17 +52,44 @@ const loginController = async (req, res) => {
 };
 
 const getAllUsers = async (req, res) => {
+  const userId = req.user.id;
   try {
-    const users = await UserSchema.find({}).select('-password');
-    console.log("this is users->",users);
+    // Find the current user
+    const currentUser = await UserSchema.findById(userId).populate("friends");
+
+    // Exclude current user and their friends from the list
+    const users = await UserSchema.find({
+      _id: { $ne: userId, $nin: currentUser.friends.map((friend) => friend._id) },
+    }).select("-password");
+
     res.status(200).json(users);
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 
+const getFriends = async(req,res)=>{
+  try{
+    const userId = req.user.id;
+    const user = await UserSchema.findById(userId).populate('friends',"name");
+    if(!user){
+      res.status(404).json({message:"User not found"});
+    }
+    res.status(200).json(user.friends);
+
+  }
+  catch(err){
+    console.log(err);
+    res.status(500).json({message:"Server error",error:err.message});
+
+  }
+}
 
 
-module.exports = { registerController, loginController , getAllUsers};
+
+
+
+
+module.exports = { registerController, loginController , getAllUsers, getFriends};
