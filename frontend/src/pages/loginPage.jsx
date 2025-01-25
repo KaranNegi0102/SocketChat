@@ -21,7 +21,7 @@ function Login() {
       if (response.status === 200) {
         localStorage.setItem('token', response.data.token)
         localStorage.setItem('userId', response.data.user._id)
-        // console.log(localStorage.getItem("userId"));
+        console.log(localStorage.getItem("userId"));
         console.log(response.data.user.name)
         navigate("/",{state:{name:response.data.user.name}}); 
       }

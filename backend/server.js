@@ -54,7 +54,13 @@ io.on("connection", (socket) => {
 
   // Handle request responses (accept/reject)
   socket.on("respondToRequest", ({ senderId ,receiverId, response }) => {
-    
+    if (response === "accept") {
+      io.to(users[receiverId]).emit("acceptRequest", { senderId: socket.id });
+    } else if (response === "reject") {
+      io.to(users[receiverId]).emit("rejectRequest", { senderId: socket.id });
+    }
+
+    console.log(`Request response from ${senderId} to ${receiverId}: ${response}`);
   });
 
   // Handle user disconnection
