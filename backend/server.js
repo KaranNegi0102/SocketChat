@@ -63,6 +63,21 @@ io.on("connection", (socket) => {
     console.log(`Request response from ${senderId} to ${receiverId}: ${response}`);
   });
 
+
+  socket.on("sendMessage", async ({ senderId, receiverId, text }) => {
+    const receiver = await UserSchema.findById(receiverId);
+
+    if (receiver && receiver.socketId) {
+      io.to(receiver.socketId).emit("receiveMessage", {
+        senderId,
+        text,
+      });
+      console.log(`Message ${text} sent from ${senderId} to ${receiverId}`);
+    } else {
+      console.log(`Receiver ${receiverId} is not connected.`);
+    }
+  });
+
   // Handle user disconnection
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
