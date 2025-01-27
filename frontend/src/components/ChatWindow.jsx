@@ -2,40 +2,47 @@ import React, { useContext, useState, useEffect } from "react";
 import { SocketContext } from "../Context/SocketContext";
 
 const ChatWindow = ({ selectedUser }) => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({}); // Dictionary to store messages for each user
   const [message, setMessage] = useState("");
   const { socket } = useContext(SocketContext);
 
-
   useEffect(() => {
+    // Listen for incoming messages
     socket.on("receiveMessage", (data) => {
-      console.log("this is data -> ", data);
-      console.log("this is selectedUser -> ", selectedUser);
-      console.log(data.senderId === selectedUser._id);//this is coming true
       if (data.senderId === selectedUser._id) {
-        setMessages((prevMessages) => [...prevMessages,
-        { sender: selectedUser.name, text: data.text },
-        ]);
+        setMessages((prevMessages) => ({
+          ...prevMessages,
+          [selectedUser._id]: [
+            ...(prevMessages[selectedUser._id] || []),
+            { sender: selectedUser.name, text: data.text },
+          ],
+        }));
       }
     });
 
     return () => {
       socket.off("receiveMessage");
-    }
+    };
   }, [socket, selectedUser]);
-
 
   const sendMessageHandler = () => {
     if (message.trim() !== "") {
+      const userId = localStorage.getItem("userId");
       socket.emit("sendMessage", {
-        senderId: localStorage.getItem("userId"),
+        senderId: userId,
         receiverId: selectedUser._id,
         text: message,
       });
-      setMessages((prevMessages) => [
+
+      // Update messages for the selected user
+      setMessages((prevMessages) => ({
         ...prevMessages,
-        { sender: "You", text: message },
-      ]);
+        [selectedUser._id]: [
+          ...(prevMessages[selectedUser._id] || []),
+          { sender: "You", text: message },
+        ],
+      }));
+
       setMessage("");
     }
   };
@@ -43,7 +50,7 @@ const ChatWindow = ({ selectedUser }) => {
   return (
     <div className="bg-gray-50 border border-gray-300 p-4 rounded-lg h-full">
       <div className="overflow-y-auto h-4/5 mb-4">
-        {messages.map((msg, index) => (
+        {(messages[selectedUser._id] || []).map((msg, index) => (
           <div
             key={index}
             className={`mb-2 ${
