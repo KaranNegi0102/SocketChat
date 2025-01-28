@@ -51,7 +51,7 @@ const Home = () => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Navbar */}
-      <div className="bg-white shadow-md p-4 flex justify-between items-center">
+      <div className="bg-gray-800 shadow-md p-4 flex justify-between items-center">
         <div className="flex items-center space-x-4">
           {/* Profile Photo and Link */}
           <Link to="/profile">
@@ -61,20 +61,24 @@ const Home = () => {
                 alt="Profile"
                 className="w-10 h-10 rounded-full"
               />
-              <span className="text-lg font-semibold text-gray-800">{name}</span>
+              <span className="text-lg font-semibold text-white hover:underline">{name}</span>
             </div>
           </Link>
+        </div>
+
+        <div>
+          <h1 className="text-2xl font-bold text-white p-4">TalkAtive</h1>
         </div>
 
         {/* Navbar Buttons */}
         <div className="flex items-center space-x-4">
           <Link to="/send-requests">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+            <button className="bg-white text-black hover:bg-black hover:text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
               Add Friend
             </button>
           </Link>
           <Link to="/pending-requests">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+            <button className="bg-white text-black hover:bg-black hover:text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
               Pending Requests
             </button>
           </Link>
@@ -90,9 +94,9 @@ const Home = () => {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <div className="w-1/4 bg-white p-6 border-r border-gray-200 shadow-lg overflow-y-auto">
+        <div className="w-1/4 bg-gray-700 p-6 border-r border-gray-200 shadow-lg overflow-y-auto">
           {/* Friend List Section */}
-          <h2 className="text-lg font-semibold text-gray-700 mb-4">Friends</h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Friends</h2>
           {isLoading ? (
             <div className="text-gray-500">Loading friends...</div>
           ) : (
@@ -101,7 +105,7 @@ const Home = () => {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-6 overflow-y-auto bg-gray-500">
           {selectedUser ? (
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">

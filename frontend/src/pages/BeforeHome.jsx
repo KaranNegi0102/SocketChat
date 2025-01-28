@@ -9,7 +9,7 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-blue-600">SocketChat</h1>
+              <h1 className="text-2xl font-bold text-blue-600">TalkAtive</h1>
             </div>
             <div className="flex space-x-4">
               <Link
@@ -61,7 +61,7 @@ const LandingPage = () => {
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why Choose SocketChat?
+            Why Choose TalkAtive?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Feature 1 */}

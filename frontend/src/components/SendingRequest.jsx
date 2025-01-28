@@ -75,7 +75,7 @@ const SendRequests = () => {
           )}
         </ul>
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/home")}
           className="mt-6 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors w-full"
         >
           Back to Home
