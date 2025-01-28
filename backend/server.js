@@ -29,6 +29,13 @@ io.on("connection", (socket) => {
         { new: true } // Return updated user
       );
       if (user) {
+        console.log(`User registered: ${userId}`);
+        users[userId] = socket.id;
+        user.friends.forEach((friendId) => {
+          if (users[friendId]) {
+            io.to(users[friendId]).emit("friend-online", userId);
+          }
+        });
         console.log(`Socket ID updated for user -> ${userId}, Socket ID: ${socket.id}`);
       } else {
         console.log(`User not found for ID -> ${userId}`);
@@ -79,8 +86,21 @@ io.on("connection", (socket) => {
   });
 
   // Handle user disconnection
-  socket.on("disconnect", () => {
+  socket.on("disconnect",async  () => {
     console.log("A user disconnected:", socket.id);
+    const userId = Object.keys(users).find((key) => users[key] === socket.id);
+    if (userId) {
+      delete users[userId];
+      console.log(`User disconnected: ${userId}`);
+      const user = await UserSchema.findById(userId);
+      if (user) {
+        user.friends.forEach((friendId) => {
+          if (users[friendId]) {
+            io.to(users[friendId]).emit("friend-offline", userId);
+          }
+        });
+      }
+    }
   });
 });
 

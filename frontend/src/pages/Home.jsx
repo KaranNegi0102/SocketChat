@@ -1,18 +1,47 @@
 import React, { useState, useEffect, useContext } from "react";
 import UserList from "../components/UserLists";
 import axios from "axios";
-import SocketContext from "../Context/SocketContext";
+import { SocketContext} from "../Context/SocketContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import ChatWindow from "../components/ChatWindow";
 
 const Home = () => {
-  const socket = useContext(SocketContext);
+  const {socket} = useContext(SocketContext);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const name = location.state?.name;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("friend-online", (userId) => {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId ? { ...user, isOnline: true } : user
+          )
+        );
+      });
+  
+      socket.on("friend-offline", (userId) => {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user._id === userId ? { ...user, isOnline: false } : user
+          )
+        );
+      });
+    }
+  
+    return () => {
+      if (socket) {
+        socket.off("friend-online");
+        socket.off("friend-offline");
+      }
+    };
+  }, [socket]);
+  
+
 
   useEffect(() => {
     const fetchFriends = async () => {

@@ -79,35 +79,39 @@ const UserList = ({ users, selectedUser }) => {
   }, [users]);
 
   return (
-    <div className="bg-gray-00 rounded-lg  p-4">
+    <div className="bg-gray-00 rounded-lg p-4">
       <ul className="space-y-3">
-        {users.map((user, index) => (
+        {users.map((user) => (
           <li
-            key={index}
-            ref={(el) => (userRefs.current[index] = el)} // Assign ref to each user item
+            key={user._id}
             onClick={() => selectedUser(user)}
-            onMouseEnter={() => expandName(index)} // Expand on hover
-            onMouseLeave={() => collapseName(index)} // Collapse on hover out
-            className="flex items-center justify-between bg-white rounded-lg px-4 py-2 hover:shadow  transition-shadow cursor-pointer"
+            className={`flex items-center justify-between bg-white rounded-lg px-4 py-2 hover:shadow transition-shadow cursor-pointer ${
+              user.isOnline ? "border-green-500 border-2" : ""
+            }`}
           >
             <div className="flex items-center space-x-3">
-              {/* Profile Circle */}
-              <div className="profile-circle flex items-center justify-center w-10 h-10 bg-blue-500 text-white font-semibold rounded-full">
-                {getInitials(user.name)}
-              </div>
-              {/* User Name (initially hidden) */}
-              <span
-                className="user-name text-black font-medium"
-                style={{ width: 0, opacity: 0, overflow: 'hidden' }}
+              <div
+                className={`profile-circle flex items-center justify-center w-10 h-10 ${
+                  user.isOnline ? "bg-green-500" : "bg-gray-300"
+                } text-white font-semibold rounded-full`}
               >
-                {user.name}
-              </span>
+                {user.name[0].toUpperCase()}
+              </div>
+              <span className="text-black font-medium">{user.name}</span>
             </div>
+            <span
+              className={`text-sm ${
+                user.isOnline ? "text-green-500" : "text-gray-400"
+              }`}
+            >
+              {user.isOnline ? "Online" : "Offline"}
+            </span>
           </li>
         ))}
       </ul>
     </div>
   );
 };
+
 
 export default UserList;

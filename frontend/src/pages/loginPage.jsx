@@ -1,14 +1,25 @@
-import React, { useState } from "react";
+import React, { useState , useEffect} from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { motion } from "framer-motion";
-
+import { useContext } from "react";
+import { SocketContext } from "../Context/SocketContext";
 function Login() {
+  const {socket} = useContext(SocketContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (userId && socket) {
+      socket.emit("register", userId);
+    }
+  }, [socket]);
+  
+
 
   async function handleSubmit(e) {
     e.preventDefault();
