@@ -16,6 +16,7 @@ const Home = () => {
 
   useEffect(() => {
     if (socket) {
+      console.log("Socket connected");
       socket.on("friend-online", (userId) => {
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
@@ -23,6 +24,7 @@ const Home = () => {
           )
         );
       });
+      console.log("i wanted to check the isOnline status",users);
   
       socket.on("friend-offline", (userId) => {
         setUsers((prevUsers) =>

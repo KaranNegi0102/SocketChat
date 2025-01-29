@@ -12,13 +12,12 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (userId && socket) {
-      socket.emit("register", userId);
-    }
-  }, [socket]);
-  
+  // useEffect(() => {
+  //   const userId = localStorage.getItem("userId");
+  //   if (userId && socket) {
+  //     socket.emit("register", userId);
+  //   }
+  // }, [socket]);
 
 
   async function handleSubmit(e) {
@@ -36,6 +35,9 @@ function Login() {
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("userId", response.data.user._id);
+        const userId = localStorage.getItem("userId");
+        console.log("User ID:", userId);
+        socket.emit("login", userId);
         navigate("/home", { state: { name: response.data.user.name } });
       }
     } catch (err) {

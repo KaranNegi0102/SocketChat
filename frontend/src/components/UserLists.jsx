@@ -3,6 +3,7 @@ import gsap from 'gsap';
 
 const UserList = ({ users, selectedUser }) => {
   const userRefs = useRef([]); // Array of refs for each user item
+  // console.log(users[0].isOnline);
 
   // Function to get initials
   const getInitials = (name) => {
