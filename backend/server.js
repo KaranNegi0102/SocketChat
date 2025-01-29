@@ -32,25 +32,49 @@ io.on("connection", (socket) => {
     }
   });
 
-  // socket.on('logout', async (userId) => {
-    
-  // });
+  socket.on("logout", async (userId) => {
+    console.log(`User ${userId} logged out.`);
+  
+    try {
+      const user = await UserSchema.findByIdAndUpdate(
+        userId,
+        { isOnline: false, socketId: null },
+        { new: true }
+      );
+  
+      if (user) {
+        for (const friendId of user.friends) {
+          const friend = await UserSchema.findById(friendId);
+          if (friend && friend.socketId) {
+            io.to(friend.socketId).emit("friend-offline", userId);
+            console.log(`Notified ${friendId} that ${userId} is offline.`);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error handling logout:", err);
+    }
+  });
+  
 
   socket.on("login", async (userId) => {
     try {
       const user = await UserSchema.findByIdAndUpdate(
         userId,
         { socketId: socket.id ,isOnline:true },
-        { new: true } // Return updated user
+        { new: true } 
       );
       if(user){
         console.log(`User ${userId} is now online.`);
         console.log("this is user from login ",user)
-        user.friends.forEach((friendId)=>{
-          console.log(friendId)
-          console.log(`emiited to ${friendId} that user ${userId} is now online.`);
-          io.to(friendId).emit("friend-online",userId);
-        })
+        for (const friendId of user.friends) {
+          console.log("this is friendId ",friendId)
+          const friend = await UserSchema.findById(friendId);
+          if (friend && friend.socketId) {
+            io.to(friend.socketId).emit("friend-online", userId);
+            console.log(`Notified ${friendId} that ${userId} is online.`);
+          }
+        }
       }
         console.log(`Socket ID updated for user -> ${userId}, Socket ID: ${socket.id}`);
       }
@@ -99,28 +123,20 @@ io.on("connection", (socket) => {
     }
   });
 
+  
+
   // Handle user disconnection
-  socket.on("disconnect",async  () => {
+  socket.on("disconnect", async () => {
     console.log("A user disconnected:", socket.id);
     try {
-      const user = await UserSchema.findOneAndUpdate(
-        { socketId: socket.id },
-        { isOnline: false, socketId: null },
-        { new: true }
+      await UserSchema.findOneAndUpdate(
+        { socketId: socket.id ,isOnline:false},
+        { socketId: null }
       );
-
-      // if (user) {
-      //   console.log(`User ${user._id} is now offline.`);
-
-      //   // Notify friends that the user is offline
-      //   user.friends.forEach((friendId) => {
-      //     io.to(friendId).emit("friend-offline", user._id);
-      //   });
-      }
-     catch (err) {
-      console.error("Error updating user disconnection:", err);
+    } catch (err) {
+      console.error("Error handling disconnection:", err);
     }
-  });
+  });  
 });
 
 // Start the server

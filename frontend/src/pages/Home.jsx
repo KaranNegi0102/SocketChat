@@ -15,9 +15,18 @@ const Home = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+
+    const userId = localStorage.getItem("userId");
+    if (socket && userId) {
+      socket.emit("login", userId); // Re-register user on reconnect
+    }
+
     if (socket) {
-      console.log("Socket connected");
+      console.log("Socket connected -->>",socket);
+      // console.log(socket.on);
       socket.on("friend-online", (userId) => {
+        console.log("i wanted to check the userIds",userId,users);
+        console.log("user._id === userId",users._id === userId);
         setUsers((prevUsers) =>
           prevUsers.map((user) =>
             user._id === userId ? { ...user, isOnline: true } : user
@@ -43,6 +52,7 @@ const Home = () => {
     };
   }, [socket]);
   
+  console.log("i wanted to check the isOnline status",users);
 
 
   useEffect(() => {
@@ -74,10 +84,16 @@ const Home = () => {
   };
 
   const handleLogout = () => {
+    const userId = localStorage.getItem("userId"); // Get the userId
+    if (socket) {
+      socket.emit("logout", userId); // Emit logout event
+    }
+    
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
     navigate("/login");
   };
+  
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-purple-50">

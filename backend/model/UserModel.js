@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   socketId: {type:String, default: null},
   friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  isOnline: { type: Boolean, default: false },
 })
 
 module.exports = mongoose.model("User", userSchema);
