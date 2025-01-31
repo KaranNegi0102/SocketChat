@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { registerController, loginController , getAllUsers, getFriends} = require("../controllers/userController");
+const { registerController, loginController , getAllUsers, getFriends,removeFriend} = require("../controllers/userController");
 const authMiddleware = require("../middlewares/authMiddleware");
 const UserSchema = require("../model/UserModel");
 
@@ -41,6 +41,8 @@ router.post('/remove-socket-id',authMiddleware ,async (req, res) => {
       res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/remove-friend',authMiddleware,removeFriend);
 
 
 module.exports = router;

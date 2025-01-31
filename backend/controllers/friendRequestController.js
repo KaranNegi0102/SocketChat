@@ -69,7 +69,7 @@ const getPendingRequests = async (req, res) => {
 
   try {
     const requests = await FriendRequest.find({ receiver: userId, status: 'pending' }).populate('sender', 'name');
-    console.log("this is requests -> ", requests);
+    console.log("this is requests in controller -> ", requests);
     res.status(200).json(requests);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

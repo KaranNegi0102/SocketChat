@@ -87,9 +87,40 @@ const getFriends = async(req,res)=>{
   }
 }
 
+const removeFriend = async (req, res) => {
+  const { friendId } = req.body;
+  const userId = req.user.id;
+
+  try {
+    // Find both users
+    const user = await UserSchema.findById(userId);
+    const friend = await UserSchema.findById(friendId);
+
+    if (!user || !friend) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove friend from both users' lists
+    user.friends = user.friends.filter((id) => id.toString() !== friendId);
+    friend.friends = friend.friends.filter((id) => id.toString() !== userId);
+
+    await user.save();
+    await friend.save();
+
+    // Emit event to the removed friend (if they are online)
+    if (friend.socketId) {
+      io.to(friend.socketId).emit("friendRemoved", { removedBy: userId });
+    }
+
+    res.status(200).json({ message: "Friend removed successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 
 
 
 
-module.exports = { registerController, loginController , getAllUsers, getFriends};
+module.exports = { registerController, loginController , getAllUsers, getFriends, removeFriend};
