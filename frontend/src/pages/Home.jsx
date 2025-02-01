@@ -9,10 +9,47 @@ const Home = () => {
   const {socket} = useContext(SocketContext);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [pendingRequests, setPendingRequests] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const name = location.state?.name;
   const navigate = useNavigate();
+
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("newFriendRequest", () => {
+        setPendingRequests((prev) => prev + 1); // Increment the pending request count
+      });
+    }
+  
+    return () => {
+      if (socket) {
+        socket.off("friendRequestReceived");
+      }
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    const fetchPendingRequests = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("http://localhost:5000/api/friend-requests/pending-requests", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (response.status === 200) {
+          setPendingRequests(response.data.length);
+        }
+      } catch (err) {
+        console.error("Error fetching pending requests:", err);
+      }
+    };
+    fetchPendingRequests();
+  }, []);
+
+
+
 
   useEffect(() => {
 
@@ -126,7 +163,7 @@ const Home = () => {
           </Link>
           <Link to="/pending-requests">
             <button className="bg-white text-black hover:bg-black hover:text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
-              Pending Requests
+              Pending Requests {pendingRequests > 0 && <span className="ml-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs">{pendingRequests}</span>}
             </button>
           </Link>
           <button
@@ -171,6 +208,11 @@ const Home = () => {
             </div>
           )}
         </div>
+        <Link to="/remove-friend">
+          <button className="bg-white text-black hover:bg-black hover:text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+            View Friends
+          </button>
+        </Link>
       </div>
     </div>
   );

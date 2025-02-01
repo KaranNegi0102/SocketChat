@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import gsap from 'gsap';
+
 
 const UserList = ({ users, selectedUser }) => {
   const userRefs = useRef([]); // Array of refs for each user item

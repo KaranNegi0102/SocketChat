@@ -107,10 +107,10 @@ const removeFriend = async (req, res) => {
     await user.save();
     await friend.save();
 
-    // Emit event to the removed friend (if they are online)
-    if (friend.socketId) {
-      io.to(friend.socketId).emit("friendRemoved", { removedBy: userId });
-    }
+    // // Emit event to the removed friend (if they are online)
+    // if (friend.socketId) {
+    //   io.to(friend.socketId).emit("friendRemoved", { removedBy: userId });
+    // }
 
     res.status(200).json({ message: "Friend removed successfully" });
   } catch (err) {

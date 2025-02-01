@@ -9,6 +9,7 @@ import PendingRequests from "./components/PendingRequest";
 import SendRequests from "./components/SendingRequest";
 import LandingPage from "./pages/BeforeHome";
 import ProfilePage from "./pages/Profile";
+import FriendList from "./pages/FriendList";
 function App() {
   return (
     
@@ -21,8 +22,8 @@ function App() {
         <Route path="/pending-requests" element={<PendingRequests />} />
         <Route path="/send-requests" element={<SendRequests />} /> 
         <Route path="/profile" element={<ProfilePage />} /> 
+        <Route path="/remove-friend" element={<FriendList/>} ></Route>
       </Routes>
-    
   );
 }
 
