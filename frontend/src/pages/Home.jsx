@@ -1,9 +1,12 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { SocketContext } from "../Context/SocketContext";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import UserList from "../components/UserLists";
 import ChatWindow from "../components/ChatWindow";
+import gsap from "gsap";
+import { FaBars, FaTimes } from "react-icons/fa";
+import profileImage from "../assets/icons8.gif";
 
 const Home = () => {
   const { socket } = useContext(SocketContext);
@@ -11,9 +14,52 @@ const Home = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
   const name = location.state?.name;
   const navigate = useNavigate();
+
+  // Refs for GSAP animations
+  const navRef = useRef(null);
+  const sidebarRef = useRef(null);
+  const chatWindowRef = useRef(null);
+
+  // GSAP animations on component mount
+  useEffect(() => {
+    gsap.from(navRef.current, {
+      duration: 1,
+      y: -50,
+      opacity: 0,
+      ease: "power3.out",
+    });
+
+    gsap.from(sidebarRef.current, {
+      duration: 1,
+      x: -50,
+      opacity: 0,
+      ease: "power3.out",
+      delay: 0.5,
+    });
+
+    gsap.from(chatWindowRef.current, {
+      duration: 1,
+      x: 50,
+      opacity: 0,
+      ease: "power3.out",
+      delay: 1,
+    });
+  }, []);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+    gsap.to(sidebarRef.current, {
+      duration: 0.5,
+      x: isSidebarOpen ? -250 : 0,
+      opacity: isSidebarOpen ? 0 : 1,
+      ease: "power3.out",
+    });
+  };
+
 
   // Fetch pending friend requests
   useEffect(() => {
@@ -116,6 +162,12 @@ const Home = () => {
   // Handle user selection
   const selectedUserHandler = (user) => {
     setSelectedUser(user);
+    gsap.from(chatWindowRef.current, {
+      duration: 0.5,
+      x: 50,
+      opacity: 0,
+      ease: "power3.out",
+    });
   };
 
   // Handle logout
@@ -133,15 +185,21 @@ const Home = () => {
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Navbar */}
-      <nav className="bg-gray-800 shadow-md p-4 flex justify-between items-center">
+      <nav
+        ref={navRef}
+        className="bg-gray-800 shadow-md p-4 flex justify-between items-center"
+      >
+        <button onClick={toggleSidebar} className="text-white text-2xl focus:outline-none">
+          {isSidebarOpen ? <FaTimes /> : <FaBars />}
+        </button>
         <div className="flex items-center space-x-4">
           <Link to="/profile" className="flex items-center space-x-3 cursor-pointer">
             <img
-              src="https://via.placeholder.com/40"
+              src={profileImage}
               alt="Profile"
               className="w-10 h-10 rounded-full"
             />
-            <span className="text-lg font-semibold text-white hover:underline">
+            <span className="text-2xl font-semibold text-white hover:underline">
               {name}
             </span>
           </Link>
@@ -185,7 +243,10 @@ const Home = () => {
       {/* Main Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-1/4 bg-gray-700 p-6 border-r border-gray-200 shadow-lg overflow-y-auto">
+        <aside
+          ref={sidebarRef}
+          className="w-1/4 bg-gray-700 p-6 border-r border-gray-200 shadow-lg overflow-y-auto"
+        >
           <h2 className="text-lg font-semibold text-white mb-4">Friends</h2>
           {isLoading ? (
             <div className="text-gray-500">Loading friends...</div>
@@ -195,7 +256,7 @@ const Home = () => {
         </aside>
 
         {/* Chat Window */}
-        <main className="flex-1 p-6 overflow-y-auto bg-gray-500">
+        <main ref={chatWindowRef} className="flex-1 p-6 overflow-y-auto bg-gray-500">
           {selectedUser ? (
             <div className="h-full flex flex-col bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-800 mb-4">

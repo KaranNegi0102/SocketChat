@@ -1,18 +1,38 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom"; // Import useNavigate for navigation
 import SocketContext from "../Context/SocketContext";
+import gsap from "gsap"; // Import GSAP
 
 const PendingRequests = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const socket = useContext(SocketContext);
+  const navigate = useNavigate(); // Initialize useNavigate
+  const containerRef = useRef(null); // Ref for GSAP animation
 
+  // GSAP animation on component mount
+  useEffect(() => {
+    if (containerRef.current) {
+      gsap.from(containerRef.current, {
+        duration: 0.8,
+        opacity: 0,
+        y: 50,
+        ease: "power3.out",
+      });
+    }
+  }, []);
+
+  // Fetch pending friend requests
   useEffect(() => {
     const fetchRequests = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/api/friend-requests/pending-requests", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axios.get(
+          "http://localhost:5000/api/friend-requests/pending-requests",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         console.log("this is response -> ", response.data);
         setPendingRequests(response.data);
       } catch (error) {
@@ -22,6 +42,7 @@ const PendingRequests = () => {
     fetchRequests();
   }, []);
 
+  // Handle accepting a friend request
   const handleAccept = async (requestId) => {
     try {
       const token = localStorage.getItem("token");
@@ -37,6 +58,7 @@ const PendingRequests = () => {
     }
   };
 
+  // Handle rejecting a friend request
   const handleReject = async (requestId) => {
     try {
       const token = localStorage.getItem("token");
@@ -52,8 +74,22 @@ const PendingRequests = () => {
     }
   };
 
+  // Handle back button click
+  const handleBack = () => {
+    navigate(-1); // Navigate back to the previous page
+  };
+
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md">
+    <div ref={containerRef} className="bg-gray-600 p-6 rounded-lg shadow-md max-w-2xl mx-auto mt-10">
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        className="mb-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition duration-200"
+      >
+        Back
+      </button>
+
+      {/* Pending Requests List */}
       <h2 className="text-xl font-bold mb-4">Pending Friend Requests</h2>
       <ul className="space-y-3">
         {pendingRequests.map((req) => (
@@ -65,13 +101,13 @@ const PendingRequests = () => {
             <div className="space-x-2">
               <button
                 onClick={() => handleAccept(req._id)}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200"
               >
                 Accept
               </button>
               <button
                 onClick={() => handleReject(req._id)}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200"
               >
                 Reject
               </button>
